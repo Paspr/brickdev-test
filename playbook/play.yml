@@ -1,0 +1,78 @@
+---
+- name: Set up brickdev user and configure SSH
+  hosts: all
+  #connection: local
+  become: yes
+  tasks:
+  
+    - name: Update package cache
+      apt:
+        update_cache: yes
+
+    - name: Install OpenSSH Server
+      apt:
+        name: openssh-server
+        state: present
+
+    - name: Ensure SSH service is enabled and running
+      service:
+        name: ssh
+        state: started
+        enabled: yes
+    
+    - name: Install required Python package for password hashing
+      apt:
+        name: python3-passlib
+        state: present
+      become: yes
+
+    - name: Create the brickdev user
+      user:
+        name: brickdev
+        password: "{{ 'pass' | password_hash('sha512') }}"
+        shell: /bin/bash
+        create_home: yes
+
+    - name: Create .ssh directory for brickdev
+      file:
+        path: /home/brickdev/.ssh
+        state: directory
+        owner: brickdev
+        group: brickdev
+        mode: '0700'
+
+    - name: Add public key for brickdev user
+      copy:
+        dest: /home/brickdev/.ssh/authorized_keys
+        content: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDDW1sg+ys6EEZd6ZzbDlrMMybOBUALEtERY2/ZKsvgbcAzTERxbtsqu+iNNDBo+sf3L3YuWkd8fLH4SJ3MQV42ySc6ml2tMT0G2r+QIWwFz+nPaD2DY8blgFpsa41TZxwKgLmqEtUVlps9Q6Un5KtJMjTl2MWYKswdxSqHw8em0DNigJolWfzsmoTvd1HXTYdj/PiJECW3nS38PFlL19Av6ipwrbxme2/VyvjolX5F3p/dgLkuUU7UMQ+tlx9gAlN0F/Tf6zMHSubIBC7lOf58zP+IlykdD4leVaNpFckk9hxnKCZpyM7jlwi2YSnYLAOh4v56NTq7c/yG2jX9+lSb"
+        owner: brickdev
+        group: brickdev
+        mode: '0600'
+
+    - name: Ensure SSH key authentication is enabled
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PubkeyAuthentication'
+        line: 'PubkeyAuthentication yes'
+        state: present
+
+    - name: Disable password authentication for SSH
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+        state: present
+
+    - name: Disable root SSH login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin no'
+        state: present
+        backup: yes
+
+    - name: Restart SSH service to apply changes
+      service:
+        name: ssh
+        state: restarted
+

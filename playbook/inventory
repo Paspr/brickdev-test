@@ -1,0 +1,1 @@
+test_server ansible_host=X.X.X.X ansible_ssh_pass=client_pass
