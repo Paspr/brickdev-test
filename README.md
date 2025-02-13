@@ -13,7 +13,7 @@ ansible-playbook -i ./inventory ./play.yml --ask-become-pass
 
 - Локальный запуск (нужен установленный Ansible на хосте, где запускается playbook)
 
-Перед запуском расскоментировать строку local в play.yml.
+Перед запуском расскоментировать строку connection: local в play.yml.
 
 ```
 ansible-playbook -i "localhost," ./play.yml --ask-become-pass  
@@ -72,7 +72,7 @@ docker run -d --name brick -p 8000:8000 brick-app
 docker compose up --build -d --scale brick-app=3
 ```
 
-После запуска реплик указанные выше команды можно запускать на портах 8001-8002.
+После запуска реплик указанные выше команды можно запускать на портах 8000-8002.
 
 Запрос
 
