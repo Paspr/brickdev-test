@@ -13,7 +13,7 @@ ansible-playbook -i ./inventory ./play.yml --ask-become-pass
 
 - Локальный запуск (нужен установленный Ansible на хосте, где запускается playbook)
 
-Перед запуском расскоментировать строку connection: local в play.yml.
+Перед запуском раскомментировать строку connection: local в play.yml.
 
 ```
 ansible-playbook -i "localhost," ./play.yml --ask-become-pass  
