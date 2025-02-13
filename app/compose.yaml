@@ -1,0 +1,27 @@
+services:
+  brick-app:
+    build:
+      context: .
+    deploy:
+      mode: replicated
+      replicas: 3
+    ports:
+      - "8000-8002:8000"
+    environment:
+      NODE_ENV: production
+      PORT: 8000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "curl", "-f", "host.docker.internal:8001/hostname"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
